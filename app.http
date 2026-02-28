@@ -24,11 +24,6 @@ Content-Type: application/json
 GET {{BaseUrl}}/plants?search=
 Content-Type: application/json
 
-#> {%
-#    client.global.set("plantId", response.body.data.plants[0].id);
-#    console.log(client.global.get("plantId"))
-#%}
-
 ### Menambahkan data tumbuhan baru
 # @name PostPlants
 POST {{BaseUrl}}/plants
@@ -126,4 +121,112 @@ Content-Type: image/png
 ### Menghapus data plant berdasarkan id-nya
 # @name DeletePlant
 DELETE {{BaseUrl}}/plants/{{plantId}}
+Content-Type: application/json
+
+
+## Pastries
+## ===========================================
+
+### Mengambil semua data pastry
+# @name GetAllPastries
+GET {{BaseUrl}}/pastries?search=
+Content-Type: application/json
+
+### Menambahkan data pastry baru
+# @name PostPastries
+POST {{BaseUrl}}/pastries
+Content-Type: multipart/form-data; boundary=WebAppBoundary
+
+--WebAppBoundary
+Content-Disposition: form-data; name="judul"
+
+Croissant Cokelat
+--WebAppBoundary
+Content-Disposition: form-data; name="deskripsi"
+
+Roti berlapis mentega yang renyah dengan isian cokelat Belgia yang lumer
+--WebAppBoundary
+Content-Disposition: form-data; name="bahanUtama"
+
+Tepung terigu, Mentega, Cokelat, Ragi
+--WebAppBoundary
+Content-Disposition: form-data; name="infoAlergen"
+
+Mengandung Gluten, Susu, dan kemungkinan jejak Kacang
+--WebAppBoundary
+Content-Disposition: form-data; name="file"; filename="pastry.png"
+Content-Type: image/png
+
+< ./pastry.png
+--WebAppBoundary--
+
+> {%
+    client.global.set("pastryId", response.body.data.pastryId);
+    console.log(client.global.get("pastryId"))
+%}
+
+### Mengambil data pastry berdasarkan id-nya
+# @name GetPastryById
+GET {{BaseUrl}}/pastries/{{pastryId}}
+Content-Type: application/json
+
+### Melihat gambar pastry
+# @name GetPastryImageById
+GET {{BaseUrl}}/pastries/{{pastryId}}/image
+Content-Type: application/json
+
+### Mengubah hanya data pastry berdasarkan id-nya
+# @name PutPastryOnlyData
+PUT {{BaseUrl}}/pastries/{{pastryId}}
+Content-Type: multipart/form-data; boundary=WebAppBoundary
+
+--WebAppBoundary
+Content-Disposition: form-data; name="judul"
+
+Croissant Cokelat Premium
+--WebAppBoundary
+Content-Disposition: form-data; name="deskripsi"
+
+Deskripsi terbaru: Menggunakan cokelat hitam 70%
+--WebAppBoundary
+Content-Disposition: form-data; name="bahanUtama"
+
+Tepung terigu, Mentega, Cokelat Hitam
+--WebAppBoundary
+Content-Disposition: form-data; name="infoAlergen"
+
+Mengandung Gluten dan Susu
+--WebAppBoundary--
+
+### Mengubah gambar dan data pastry berdasarkan id-nya
+# @name PutPastry
+PUT {{BaseUrl}}/pastries/{{pastryId}}
+Content-Type: multipart/form-data; boundary=WebAppBoundary
+
+--WebAppBoundary
+Content-Disposition: form-data; name="judul"
+
+Croissant Cokelat
+--WebAppBoundary
+Content-Disposition: form-data; name="deskripsi"
+
+Roti berlapis mentega yang renyah dengan isian cokelat Belgia yang lumer
+--WebAppBoundary
+Content-Disposition: form-data; name="bahanUtama"
+
+Tepung terigu, Mentega, Cokelat, Ragi
+--WebAppBoundary
+Content-Disposition: form-data; name="infoAlergen"
+
+Mengandung Gluten, Susu, dan kemungkinan jejak Kacang
+--WebAppBoundary
+Content-Disposition: form-data; name="file"; filename="pastry_v2.png"
+Content-Type: image/png
+
+< ./pastry_v2.png
+--WebAppBoundary--
+
+### Menghapus data pastry berdasarkan id-nya
+# @name DeletePastry
+DELETE {{BaseUrl}}/pastries/{{pastryId}}
 Content-Type: application/json
