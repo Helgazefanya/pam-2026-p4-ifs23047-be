@@ -20,7 +20,6 @@ class PastryService(private val pastryRepository: IPastryRepository) {
     // Mengambil semua data pastry
     suspend fun getAllPastries(call: ApplicationCall) {
         val search = call.request.queryParameters["search"] ?: ""
-
         val pastries = pastryRepository.getPastries(search)
 
         val response = DataResponse(
@@ -75,8 +74,8 @@ class PastryService(private val pastryRepository: IPastryRepository) {
                     file.parentFile.mkdirs()
 
                     part.provider().copyAndClose(file.writeChannel())
-                    // Jika di database/entity field gambarnya String (path), gunakan ini:
-                    // pastryReq.gambarPath = filePath
+                    // SEKARANG DISIMPAN: Path file disimpan ke field gambar
+                    pastryReq.gambar = filePath
                 }
                 else -> {}
             }
@@ -92,16 +91,20 @@ class PastryService(private val pastryRepository: IPastryRepository) {
         validatorHelper.required("deskripsi", "Deskripsi tidak boleh kosong")
         validatorHelper.required("bahanUtama", "Bahan utama tidak boleh kosong")
         validatorHelper.required("infoAlergen", "Info alergen tidak boleh kosong")
-        // Catatan: Jika menggunakan upload file, validasi path file-nya di sini
         validatorHelper.validate()
     }
 
     // Menambahkan data pastry
     suspend fun createPastry(call: ApplicationCall) {
         val pastryReq = getPastryRequest(call)
+
+        // Cek apakah ada file yang diunggah
+        if(pastryReq.gambar.isEmpty()){
+            throw AppException(400, "Gambar pastry wajib diunggah!")
+        }
+
         validatePastryRequest(pastryReq)
 
-        // Periksa pastry dengan judul yang sama
         val existPastry = pastryRepository.getPastryByTitle(pastryReq.judul)
         if(existPastry != null){
             throw AppException(409, "Pastry dengan judul ini sudah terdaftar!")
@@ -126,8 +129,14 @@ class PastryService(private val pastryRepository: IPastryRepository) {
 
         val pastryReq = getPastryRequest(call)
 
-        // Jika gambar tidak diupload ulang, gunakan gambar lama
-        // if(pastryReq.gambarPath.isEmpty()) pastryReq.gambarPath = oldPastry.gambarPath
+        // LOGIKA BARU: Jika gambar tidak diupload ulang, gunakan path gambar lama
+        if(pastryReq.gambar.isEmpty()) {
+            pastryReq.gambar = oldPastry.gambar
+        } else {
+            // Jika ada gambar baru, hapus gambar lama dari folder uploads
+            val oldFile = File(oldPastry.gambar)
+            if(oldFile.exists()) oldFile.delete()
+        }
 
         validatePastryRequest(pastryReq)
 
@@ -152,9 +161,9 @@ class PastryService(private val pastryRepository: IPastryRepository) {
         val isDeleted = pastryRepository.removePastry(id)
         if (!isDeleted) throw AppException(400, "Gagal menghapus data pastry!")
 
-        // Logika hapus file fisik jika ada path gambar
-        // val file = File(pastry.gambarPath)
-        // if(file.exists()) file.delete()
+        // SEKARANG DIAKTIFKAN: Hapus file fisik dari folder uploads
+        val file = File(pastry.gambar)
+        if(file.exists()) file.delete()
 
         call.respond(DataResponse("success", "Berhasil menghapus data pastry", null))
     }
@@ -164,8 +173,10 @@ class PastryService(private val pastryRepository: IPastryRepository) {
         val id = call.parameters["id"] ?: return call.respond(HttpStatusCode.BadRequest)
         val pastry = pastryRepository.getPastryById(id) ?: return call.respond(HttpStatusCode.NotFound)
 
-        // val file = File(pastry.gambarPath)
-        // if (!file.exists()) return call.respond(HttpStatusCode.NotFound)
-        // call.respondFile(file)
+        // SEKARANG DIAKTIFKAN: Mengambil file berdasarkan path yang tersimpan
+        val file = File(pastry.gambar)
+        if (!file.exists()) return call.respond(HttpStatusCode.NotFound)
+
+        call.respondFile(file)
     }
 }

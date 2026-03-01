@@ -10,7 +10,7 @@ import java.util.UUID
 data class Pastry(
     var id : String = UUID.randomUUID().toString(),
     var judul: String,
-    var gambar: Int, // Digunakan untuk R.drawable.nama_roti
+    var gambar: String, // Digunakan untuk R.drawable.nama_roti
     var deskripsi: String,
     var bahanUtama: String,
     var infoAlergen: String,

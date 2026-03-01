@@ -9,11 +9,13 @@ import org.delcom.data.AppException
 import org.delcom.data.ErrorResponse
 import org.delcom.helpers.parseMessageToMap
 import org.delcom.services.PlantService
+import org.delcom.services.PastryService
 import org.delcom.services.ProfileService
 import org.koin.ktor.ext.inject
 
 fun Application.configureRouting() {
     val plantService: PlantService by inject()
+    val pastryService by inject<PastryService>()
     val profileService: ProfileService by inject()
 
     install(StatusPages) {
@@ -70,6 +72,15 @@ fun Application.configureRouting() {
             get("/{id}/image") {
                 plantService.getPlantImage(call)
             }
+        }
+
+        route("/pastries") {
+            get { pastryService.getAllPastries(call) }
+            get("/{id}") { pastryService.getPastryById(call) }
+            post { pastryService.createPastry(call) }
+            put("/{id}") { pastryService.updatePastry(call) }
+            delete("/{id}") { pastryService.deletePastry(call) }
+            get("/{id}/image") { pastryService.getPastryImage(call) }
         }
 
         // Route Profile

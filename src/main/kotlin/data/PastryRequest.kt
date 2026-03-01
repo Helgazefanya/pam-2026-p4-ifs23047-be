@@ -9,7 +9,7 @@ data class PastryRequest(
     var deskripsi: String = "",
     var bahanUtama: String = "",
     var infoAlergen: String = "",
-    var gambar: Int = 0, // Menggunakan Int untuk ID R.drawable
+    var gambar: String = "", // Menggunakan Int untuk ID R.drawable
 ){
     fun toMap(): Map<String, Any?> {
         return mapOf(
